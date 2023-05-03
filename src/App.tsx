@@ -1,25 +1,48 @@
-import './styles/global.css'
+import { useEffect, useState } from "react";
 
-import { useState } from 'react'
-
-export function App() {
-  const [list, setListe] = useState<string[]>([])
-
-  function addToListe() {
-    setListe(state => [...state, "Novo item"])
-  }
-  return(
-   
-      <div className='inline-flex items-center'>
-        <ul>
-          {list.map(item => <li  className="flex py-4 first:pt-0 last:pb-0">{item}</li>)}
-        </ul>
-
-        <button className='  bg-sky-700 h-12 w-32 text-justify-center text-cyan-100' type='button' onClick={addToListe}>Add to list</button>
-      </div>
-    
-  )
-
-  
+function avisarAPI () {
+  console.log('Lista Salva!')
 }
 
+export function App() {
+  const [list, setList] = useState<string[]>([])
+
+  const [filter, setFilter] = useState('')
+
+  useEffect(() => {
+    avisarAPI()
+  }, [list])
+
+  useEffect(() => {
+    fetch("https://api.github.com/users/LucasLeiteDuarte/repos")
+    .then(response => response.json())
+    .then(data => {
+      setList(data.map((item:any) => item.full_name))
+    })
+  }, [])
+
+  const filteredList = list.filter(item => item.includes(filter))
+
+  function addToList () {
+    setList(state => [...state, 'Novo item'])
+  }
+
+  return (
+    <div>
+      <input 
+          type="text"
+          onChange={e => setFilter(e.target.value)}
+          value={filter}
+      />
+      <ul>
+        {list.map(item => <li>{item}</li>)}
+      </ul>
+
+      <ul>
+        {filteredList.map(item => <li>{item}</li>)}
+      </ul>
+
+      <button onClick={addToList}>Add to list</button>
+    </div>
+  )
+}
